@@ -5,10 +5,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 import NotFound from './routes/NotFound.jsx'
 
 import AuthProvider from "./context/AuthProvider/AuthProvider.jsx";
+import { authCookie } from "./auth.server";
+import { APIService } from "./services/APIService";
 import "./app.css";
 
 export const links = () => [
@@ -44,11 +47,26 @@ export function Layout({ children }) {
 }
 
 export default function App() {
+  const { userInfo } = useLoaderData()
   return (
-    <AuthProvider>
+    <AuthProvider userInfo={userInfo}>
       <Outlet />
     </AuthProvider>
   );
+}
+
+export async function loader({ request }) {
+  const token = await authCookie.parse(request.headers.get("Cookie"))
+  if (!token) {
+    return { userInfo: null }
+  }
+
+  try {
+    const { password: _, ...userInfo } = await APIService.getUserInfo(token)
+    return { userInfo: { ...userInfo, token } }
+  } catch {
+    return { userInfo: null }
+  }
 }
 
 export function ErrorBoundary({ error }) {

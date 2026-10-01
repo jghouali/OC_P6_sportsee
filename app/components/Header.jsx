@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router'
+import { Form, NavLink } from 'react-router'
 import Logo from './Logo'
 
 function Header() {
@@ -10,7 +10,9 @@ function Header() {
                 <NavLink to="/dashboard" end className='text-darkPrimary no-underline hover:text-bluePrimary'>Dashboard</NavLink>
                 <NavLink to="/profile" className='text-darkPrimary no-underline hover:text-bluePrimary'>Mon profil</NavLink>
                 <hr className='h-4.25 border-l border-bluePrimary mt-1' />
-                <NavLink to="/logout" className='text-bluePrimary no-underline'>Se déconnecter</NavLink>
+                <Form method="post" action="/logout">
+                    <button type="submit" className='text-bluePrimary cursor-pointer'>Se déconnecter</button>
+                </Form>
             </nav>
         </header>
     )
