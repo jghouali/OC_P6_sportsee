@@ -1,15 +1,93 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-bluePrimary: #0B23F4;
+  --color-blueLight: #B6BDFC;
+  --color-blueHover: #5465F7;
+  --color-redPrimary: #F4320B;
+  --color-redLight: #FCC1B6;
+  --color-greyLight2: #E7E7E7;
+  --color-darkPrimary: #111111;
+  --color-greyLight: #707070;
+  --color-greyDark: #717171;
+
+  --shadow-chart: 0 4px 84px -40px rgba(157, 167, 251, 0.4);
+  --shadow-chart-hover: 0 4px 54px -18px rgba(157, 167, 251, 0.6);
+
+  --animate-reveal: reveal 1200ms cubic-bezier(0.45, 1.45, 0.8, 1) 300ms both;
+
+  --ease-chart-shadow-hover: cubic-bezier(0.45, 1.45, 0.8, 1);
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      /* transform: translateX(-20px); */
+    }
+
+    to {
+      opacity: 1;
+      /*transform: translateX(0);*/
+    }
+  }
 }
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
+@layer base {
+  h1 {
+    font-optical-sizing: auto;
+    font-weight: 900;
+    font-size: 48px;
+    line-height: 100%;
+    letter-spacing: 0px;
+  }
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+  h2 {
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 100%;
+    letter-spacing: 0px;
+  }
+
+  h3 {
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 100%;
+    letter-spacing: 0px;
+  }
+
+  h4 {
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 100%;
+    letter-spacing: 0px;
+  }
+}
+
+@layer components {
+  .bodyDefault {
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0px;
+  }
+
+  .bodyLarge {
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0px;
+  }
+
+  .bodySmall {
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 100%;
+    letter-spacing: 0px;
   }
 }
