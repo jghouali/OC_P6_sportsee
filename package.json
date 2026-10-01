@@ -5,12 +5,11 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "vite preview --outDir build/client",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
     "@react-router/node": "^7.18.4",
-    "@react-router/serve": "^7.18.4",
     "isbot": "^5.1.36",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
