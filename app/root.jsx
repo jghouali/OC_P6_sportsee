@@ -1,8 +1,10 @@
 import {
   isRouteErrorResponse,
+  Form,
   Links,
   Meta,
   Outlet,
+  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -64,8 +66,13 @@ export async function loader({ request }) {
   try {
     const { password: _, ...userInfo } = await APIService.getUserInfo(token)
     return { userInfo: { ...userInfo, token } }
-  } catch {
-    return { userInfo: null }
+  } catch (err) {
+    if (err.status === 401 || err.status === 403) {
+      throw redirect("/login", {
+        headers: { "Set-Cookie": await authCookie.serialize("", { maxAge: 0 }) },
+      })
+    }
+    throw err
   }
 }
 
@@ -80,20 +87,24 @@ export function ErrorBoundary({ error }) {
     }
     message = "Erreur";
     details = error.statusText || details;
-  } else if (import.meta.env.DEV && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+  } else if (error instanceof Error) {
+    if (!error.status) details = "Serveur injoignable, réessayez plus tard."
+    else if (import.meta.env.DEV) details = error.message
+    if (import.meta.env.DEV) stack = error.stack
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
+    <div className="flex flex-col w-full h-screen justify-center items-center gap-6 text-center py-16 px-8 m-auto ">
+      <h1 className='text-9xl m-0 text-bluePrimary font-black'>{message}🙈</h1>
+      <p className="text-left">{details}</p>
       {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
+        <pre className="w-full bodyDefault p-4 overflow-x-auto text-left">
           <code>{stack}</code>
         </pre>
       )}
-    </main>
+      <Form method="post" action="/logout">
+        <button className='inline-block py-3 px-12 bg-bluePrimary text-white rounded-lg font-extrabold transition-all duration-200 ease-in w-60' type="submit">Retour à la connexion</button>
+      </Form>
+    </div>
   );
 }

@@ -1,8 +1,7 @@
-import { Navigate, redirect } from 'react-router'
+import { redirect, Outlet } from 'react-router'
 import { authCookie } from '../auth.server.js'
-import { useContext } from 'react'
-import { AuthContext } from '../context/AuthProvider/AuthProvider'
-import LoggedLayout from '../layouts/LoggedLayout'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 export async function loader({ request }) {
     const token = await authCookie.parse(request.headers.get("Cookie"))
@@ -11,11 +10,15 @@ export async function loader({ request }) {
 }
 
 export default function ProtectedLayout() {
-    const { userInfo } = useContext(AuthContext)
-
-    if (!userInfo) {
-        return <Navigate to="/login" replace />
-    }
-
-    return <LoggedLayout />
+    return (
+        <div className='flex flex-col min-h-screen'>
+            <div className='flex flex-col flex-1 pt-8.75 px-8 xl:px-37.5 gap-27'>
+                <Header />
+                <main className='flex flex-col flex-1 gap-27 pt-8.5 px-8 xl:px-13 py-32'>
+                    <Outlet />
+                </main>
+            </div>
+            <Footer />
+        </div>
+    )
 }

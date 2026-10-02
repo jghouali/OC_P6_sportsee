@@ -8,24 +8,24 @@ function toISODate(date) {
     return `${year}-${month}-${day}`
 }
 
+function apiError(message, status) {
+    const error = new Error(message)
+    error.status = status
+    return error
+}
+
 export const APIService = {
     getLogin: async (username, password) => {
         let endPoint
         let headers
 
         if (!username || !password) {
-            throw new Error('Invalid credentials')
+            throw apiError('Identifiants manquants', 401)
         }
 
-        if (password.length <= 8) {
-            throw new Error('Password must have 8 char min.')
-        }
-
-        // Si on arrive ici, ça signifie qu'aucun return ci-dessus n'a été exécuté
-        // Ça veut donc dire qu'on peut faire un fetch 
         if (isMockData) {
             if (username != "MOCKsophiemartin" || password != "password123") {
-                throw new Error('Invalid credentials')
+                throw apiError('Identifiant invalide', 401)
             }
 
             endPoint = `${BASE_URL}/login.json`
@@ -43,23 +43,22 @@ export const APIService = {
             }
         }
 
-        try {
-            const response = await fetch(endPoint, headers)
+        const response = await fetch(endPoint, headers)
 
-            if (!response.ok) {
-                throw new Error('Error, failed to fetch')
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw apiError(`endpoint non disponible (404)`, 404)
             }
-
-            if (!response.headers.get('content-type')?.includes('application/json')) {
-                throw new Error('Not a json response')
-            }
-
-            // Si on arrive ici, c'est que tout s'est bien passé, on peut récupérer l'utilisateur et le renvoyer
-            const datas = await response.json() // Renvoi directement les données retournées par la réponse
-            return datas
-        } catch (err) {
-            throw err
+            throw apiError(`Erreur API (${response.status})`, response.status)
         }
+
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+            throw apiError('Erreur API 500', 500)
+        }
+
+        // Si on arrive ici, c'est que tout s'est bien passé, on peut récupérer l'utilisateur et le renvoyer
+        const datas = await response.json() // Renvoi directement les données retournées par la réponse
+        return datas
     },
 
     getUserInfo: async (token) => {
@@ -67,11 +66,11 @@ export const APIService = {
         let headers
         if (isMockData) {
             if (!token) {
-                throw new Error('Authentication required')
+                throw apiError('Aucun token valide trouvé', 401)
             }
 
             if (token !== 'jwt-token') {
-                throw new Error('Invalid token')
+                throw apiError('Token invalide', 401)
             }
 
             endPoint = `${BASE_URL}/userInfo.json`
@@ -90,24 +89,22 @@ export const APIService = {
             }
         }
 
-        try {
-            const response = await fetch(endPoint, headers)
+        const response = await fetch(endPoint, headers)
 
-            if (!response.ok) {
-                throw new Error('Error, failed to fetch')
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw apiError(`endpoint non disponible (404)`, 404)
             }
-
-            if (!response.headers.get('content-type')?.includes('application/json')) {
-                throw new Error('Not a json response')
-            }
-
-            // Si on arrive ici, c'est que tout s'est bien passé, on peut récupérer l'utilisateur et le renvoyer
-            const datas = await response.json() // Renvoi directement les données retournées par la réponse
-            return datas
-
-        } catch (err) {
-            throw err
+            throw apiError(`Erreur API (${response.status})`, response.status)
         }
+
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+            throw apiError('Erreur API 500', 500)
+        }
+
+        // Si on arrive ici, c'est que tout s'est bien passé, on peut récupérer l'utilisateur et le renvoyer
+        const datas = await response.json() // Renvoi directement les données retournées par la réponse
+        return datas
     },
 
     getActivityInfos: async (token, startWeek, endWeek) => {
@@ -116,12 +113,13 @@ export const APIService = {
 
         if (isMockData) {
             if (!token) {
-                throw new Error('Authentication required')
+                throw apiError('Aucun token valide trouvé', 401)
             }
 
             if (token !== 'jwt-token') {
-                throw new Error('Invalid token')
+                throw apiError('Token invalide', 401)
             }
+
             endPoint = `${BASE_URL}/activityInfos.json`
             headers = {}
         } else {
@@ -137,40 +135,38 @@ export const APIService = {
             }
         }
 
-        try {
-            const response = await fetch(endPoint, headers)
+        const response = await fetch(endPoint, headers)
 
-            if (!response.ok) {
-                throw new Error('Error, failed to fetch')
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw apiError(`endpoint non disponible (404)`, 404)
             }
-
-            if (!response.headers.get('content-type')?.includes('application/json')) {
-                throw new Error('Not a json response')
-            }
-
-            // Si on arrive ici, c'est que tout s'est bien passé, on peut récupérer l'utilisateur et le renvoyer
-            const datas = await response.json() // Renvoi directement les données retournées par la réponse
-
-            if (isMockData) {
-                const startDate = new Date(startWeek);
-                const endDate = new Date(endWeek);
-                const now = new Date();
-
-                return datas.filter(data => {
-                    const date = new Date(data.date + "T00:00");
-                    date.setHours(0, 0, 0, 0);
-
-                    return (
-                        date >= startDate &&
-                        date <= endDate &&
-                        date <= now
-                    );
-                });
-            }
-            return datas
-
-        } catch (err) {
-            throw err
+            throw apiError(`Erreur API (${response.status})`, response.status)
         }
+
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+            throw apiError('Erreur API 500', 500)
+        }
+
+        // Si on arrive ici, c'est que tout s'est bien passé, on peut récupérer l'utilisateur et le renvoyer
+        const datas = await response.json() // Renvoi directement les données retournées par la réponse
+
+        if (isMockData) {
+            const startDate = new Date(startWeek);
+            const endDate = new Date(endWeek);
+            const now = new Date();
+
+            return datas.filter(data => {
+                const date = new Date(data.date + "T00:00");
+                date.setHours(0, 0, 0, 0);
+
+                return (
+                    date >= startDate &&
+                    date <= endDate &&
+                    date <= now
+                );
+            });
+        }
+        return datas
     }
 }
